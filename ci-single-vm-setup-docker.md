@@ -78,7 +78,7 @@ vi docker-compose.yaml
 ```
 - **Replace 'XXX.XXX.X.X' with your VM's IP**
 - **eg: ":%s/192.168.2.164/192.168.1.137/g"** 
-   ![image](https://user-images.githubusercontent.com/65389762/157035625-59c0b119-987a-493c-99ea-5f00d1391b01.png)
+   ![image](https://user-images.githubusercontent.com/65389762/157243257-b8161884-c1ec-48df-bbd2-6342b95e17cc.png)
 - **eg: Exit by pressing 'Esc' and :wq!** 
 
 - **Pull the image from Click2cloud's private registry** 
@@ -103,4 +103,24 @@ docker-compose up -d
 docker ps
 ```
 - **Access Cloud Intel by: http://XXX.XXX.X.X:30282**
-- **eg: http://192.168.1.137:30282** 
+- **eg: http://192.168.1.137:30282**
+
+- **NOTE: The container might take around 10 mins to initialize-- Please wait**
+
+- **Once Cloud Intel is accessed you will see the below screen**
+
+![image](https://user-images.githubusercontent.com/65389762/157237191-a56020a5-4665-429e-a162-5ccb58ffc570.png)
+
+- **Click on Register and create your user**
+
+![image](https://user-images.githubusercontent.com/65389762/157238420-766fd916-0ec3-405a-ab64-9f2d27fe4cd8.png)
+
+- **Once the user is created, login with the admin credentials for activating the user**
+- **Username - 'admin@click2cloud-team.com'**
+- **Password - 'ROOT#123'**
+- **Activate the user as below image:**
+![image](https://user-images.githubusercontent.com/65389762/157239187-5b14e8b8-e58d-4794-8938-0266fb9a9813.png)
+
+- **Logout the admin account and login with your account's credentials**
+- **The below screen is the dashboard view of a CloudIntel user:**
+- ![image](https://user-images.githubusercontent.com/65389762/157241612-231aafb3-8b29-4a37-ab98-cb1993388fdb.png)
