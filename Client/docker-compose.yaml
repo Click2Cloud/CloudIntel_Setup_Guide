@@ -1,0 +1,149 @@
+version: '3.8'
+services:
+ db:
+    container_name: pg_container
+    image: harbornew.thecloudsbrain.com/ci_client/postgres:10
+    networks:
+      - cloudintel 
+    restart: always
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: smartvm
+      POSTGRES_DB: vmdb_production
+    ports:
+      - "5432:5432"
+    volumes:
+      - /etc/postgresql/postgresql.conf:/etc/postgresql/postgresql.conf
+      - pg_data:/var/lib/postgresql/data/
+    command: postgres -c config_file=/etc/postgresql/postgresql.conf
+ memcached:
+    container_name: memcached
+    image: harbornew.thecloudsbrain.com/ci_client/memcached:latest
+    networks:
+      - cloudintel
+    restart: always
+    environment:
+      MEMCACHED_MAX_MEMORY: "64"
+      MEMCACHED_MAX_CONNECTIONS: "1024"
+      MEMCACHED_SLAB_PAGE_SIZE: 1m
+    ports:
+      - "11211:11211"
+ cb-engine:
+    container_name: cb_wiui
+    image: harbornew.thecloudsbrain.com/ci_client/cb-without-ui:obfuscated
+    networks:
+      - cloudintel
+    restart: always
+    environment:
+      DATABASE_URL: postgresql://root:smartvm@192.168.2.164/vmdb_production?encoding=utf8&pool=5&wait_timeout=5
+      MEMCACHED_SERVICE_HOST: memcached
+      MEMCACHED_SERVICE_PORT: "11211"
+      POSTGRESQL_SERVICE_HOST: "192.168.2.164"
+      POSTGRESQL_SERVICE_PORT: "5432"
+      ALLOW_INSECURE_SESSION: "true"
+    ports:
+      - "30030:80"
+    depends_on:
+      - db
+      - memcached
+    volumes:
+      - certs:/var/www/miq/vmdb/certs
+      - logs:/var/www/miq/vmdb/log
+ cloudintel_api:
+    container_name: cloudintel_api
+    image: harbornew.thecloudsbrain.com/ci_client/cloud_intel_python_api:prod
+    networks:
+      - cloudintel
+    restart: always
+    environment:
+      DB_User: root
+      DB_Host: 192.168.2.164
+      DB_Name: vmdb_production
+      DB_Password: smartvm
+      DB_Port: "5432"
+      PORT: "8080"
+      PRICING_DB_User: root
+      PRICING_DB_Host: 114.143.207.110
+      PRICING_DB_Name: cb_pricing
+      PRICING_DB_Password: smartvm
+      PRICING_DB_Port: "30535"
+      START_SCHEMA_SCHEDULAR: "true"
+      PYTHON_API: http://192.168.2.164:30203
+      Sender_email: no-reply@click2cloud.net
+      Sender_Password: Tiger#12345
+      CB_DB_Host: 192.168.2.164
+      CB_DB_Name: vmdb_production
+      CB_DB_User: root
+      CB_DB_Password: smartvm
+      CB_DB_Port: "5432"
+      CLOUD_BRAIN_API: http://192.168.2.164:30030
+      CB_USERNAME: admin
+      CB_PASSWORD: smartvm
+    ports:
+      - "30203:8000"
+    depends_on:
+      - db
+      
+ cloudintel_node:
+    container_name: cloudintel_node
+    image: harbornew.thecloudsbrain.com/ci_client/cloudintel-node:huawei-prod
+    networks:
+      - cloudintel
+    restart: always
+    environment:
+      DB_User: root
+      DB_Host: 192.168.2.164
+      DB_Name: vmdb_production
+      DB_Password: smartvm
+      DB_Port: "5432"
+      PORT: "8080"
+      PRICING_DB_User: root
+      PRICING_DB_Host: 114.143.207.110
+      PRICING_DB_Name: cb_pricing
+      PRICING_DB_Password: smartvm
+      PRICING_DB_Port: "30535"
+      START_SCHEMA_SCHEDULAR: "true"
+      PYTHON_API: http://192.168.2.164:30203
+      Sender_email: no-reply@click2cloud.net
+      Sender_Password: Tiger#12345
+      CB_DB_Host: 192.168.2.164
+      CB_DB_Name: vmdb_production
+      CB_DB_User: root
+      CB_DB_Password: smartvm
+      CB_DB_Port: "5432"
+      CLOUD_BRAIN_API: http://192.168.2.164:30030
+      CB_USERNAME: admin
+      CB_PASSWORD: smartvm
+    ports:
+      - "30202:8080"
+    depends_on:
+      - db 
+   
+ cloudintel_app:
+    container_name: cloudintel_app
+    image: harbornew.thecloudsbrain.com/ci_client/cloudintelapp:huawei-prod
+    networks:
+      - cloudintel
+    restart: always
+    environment:
+      DB_User: root
+      DB_Host: 192.168.2.164
+      DB_Name: vmdb_production
+      DB_Password: smartvm
+      DB_Port: "5432"
+      nodeURL: http://192.168.2.164:30202/api/v1/
+    ports:
+      - "30282:80"
+    depends_on:
+      - db
+      - cloudintel_api
+      - cloudintel_node
+
+
+volumes:
+  pg_data:
+  certs:
+  logs:
+
+networks:
+  cloudintel:
